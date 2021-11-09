@@ -8,7 +8,7 @@
 #include <string.h>
 
 #define AVRG 5
-#define MACRO 1000000000
+#define NANO 1000000000
 #define MIL 1000
 
 int main(int argc, char *argv[]) {
@@ -36,14 +36,13 @@ int main(int argc, char *argv[]) {
     }
 
     str_t str;
-    str.seq = NULL;
     if (!in) {
         if (!readString(&str, stdin)) {
             printf("Read string failed\n");
             return 1;
         }
     } else {
-        FILE *f = fopen(in, "r");
+        FILE* f = fopen(in, "r");
 
         if (!f) {
             printf("Open file failed\n");
@@ -67,10 +66,15 @@ int main(int argc, char *argv[]) {
     str_t res;
     for (size_t i = 0; i < AVRG; ++i) {
         res = search(str.seq, str.size);
+        if (res.size == -1) {
+            printf("String is empty!\n");
+            return 1;
+        }
     }
     clock_gettime(CLOCK_MONOTONIC, &end);
 
-    size_t time = ((MACRO * (end.tv_sec - start.tv_sec) +
+    // Result in macro sec
+    size_t time = ((NANO * (end.tv_sec - start.tv_sec) +
                    (end.tv_nsec - start.tv_nsec)) / MIL) / AVRG;
 
     if (!out) {

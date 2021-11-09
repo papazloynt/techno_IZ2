@@ -12,6 +12,11 @@
 #define NEW_STEP 10
 
 str_t maxSeq(char* str, node_search_t* nodes,  size_t pid_num) {
+    if (!str) {
+        printf("String is empty!");
+        str_t res = {NULL, -1};
+        return res;
+    }
  str_t max;
  max.size = 0;
 
@@ -50,6 +55,12 @@ str_t maxSeq(char* str, node_search_t* nodes,  size_t pid_num) {
 
 str_t pidSearchDelegate(char* pid_str,
                            const int size, size_t pid_num) {
+    if (!pid_str) {
+        printf("String is empty!");
+        str_t res = {NULL, -1};
+        return res;
+    }
+
     node_search_t* node_num = mmap(NULL,
                                  pid_num * sizeof (node_search_t),
                                  PROT_READ | PROT_WRITE,

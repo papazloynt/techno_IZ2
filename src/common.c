@@ -2,7 +2,7 @@
 #include "search.h"
 
 bool readString(str_t* str, FILE* in) {
-    if (str || !in) {
+    if (!str || !in) {
         return false;
     }
     int digit = 10;
@@ -11,7 +11,10 @@ bool readString(str_t* str, FILE* in) {
 
     int size = (int)strtol(size_, NULL, 10);
 
-    str->seq = (char*)malloc(size);                                     // check malloc
+    str->seq = (char*)malloc(size);
+    if (!str->seq) { return false; }
+
+
     fgets(str->seq, size, in);
 
     str->size = size;
@@ -19,6 +22,14 @@ bool readString(str_t* str, FILE* in) {
 }
 
 node_search_t pidSearch(char* str, const int start_pos, const int end_pos) {
+    if (!str) {
+        printf("String is empty!");
+        node_search_t res;
+        res.data.seq = NULL;
+        res.data.size = -1;
+        return res;
+    }
+
     int left = -1;
     int max_left = -1;
     int max_right = -1;
@@ -60,7 +71,7 @@ node_search_t pidSearch(char* str, const int start_pos, const int end_pos) {
     }
 
     res.data.seq = NULL;
-    res.data.size = - 1;
+    res.data.size = 0;
     return res;
 }
 
