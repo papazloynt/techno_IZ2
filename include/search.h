@@ -2,14 +2,19 @@
 #define IZ2_SEARCH_H
 // C headers
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdio.h>
 
-typedef struct res_t {
-    const char* seq;
+typedef struct str_t {
+    char* seq;
     int size;
-} res_t;
+} str_t;
 
-res_t search(const char* str, const int size);
+str_t search(char* str, const int size);
 
-bool isAscii(const char ch);
+bool readString(str_t* str, FILE* in);
+
+bool isUpper(const char ch);
 
 #endif //IZ2_SEARCH_H
