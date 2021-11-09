@@ -26,4 +26,4 @@ node_search_t pidSearch(char* str, const int start_pos, const int end_pos);
 
 bool isUpper(const char ch);
 
-#endif   //IZ2_SEARCH_H
+#endif  // IZ2_SEARCH_H
