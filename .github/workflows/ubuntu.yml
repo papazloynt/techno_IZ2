@@ -12,7 +12,7 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt install
-          sudo apt install lcov cppcheck valgrind
+          sudo apt install lcov cppcheck valgrind gcovr
           git submodule update --init
       - name: cmake build
         run: |
