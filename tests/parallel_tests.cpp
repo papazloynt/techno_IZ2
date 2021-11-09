@@ -56,7 +56,8 @@ TEST(Test3, txt_3) {
   str_t res = search(str.seq, str.size);
 
   char true_result[] =
-      "\"ABCDEFGHIJKLMNOPQRSTUVWXYZasdasdjkasbdkjbashdbshadspakABCDEFGHIJKLMNOPQRSTUVWXY\"";
+      "\"ABCDEFGHIJKLMNOPQRSTUVWXYZasdasdjkasbdkjbashdbshadspakABCDEFGHIJKLMNOP"
+      "QRSTUVWXY\"";
 
   EXPECT_EQ(res.size, 81);
   for (size_t i = 0; i < res.size; ++i) {
