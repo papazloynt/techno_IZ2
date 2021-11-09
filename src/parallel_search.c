@@ -21,14 +21,13 @@ str_t maxSeq(char* str, node_search_t* nodes,  size_t pid_num) {
  max.size = 0;
 
  size_t i = 0;
- size_t j = 0;
  while (i < pid_num) {
     if (nodes[i].last_el != -1) {
         if (nodes[i].data.size > max.size) {
             max.seq = nodes[i].data.seq;
             max.size = nodes[i].data.size;
         }
-        j = i + 1;
+        size_t j = i + 1;
         while (j < pid_num) {
             if (nodes[j].first_el != -1) {
                 if (nodes[i].after_last_is_upper) {
@@ -41,8 +40,8 @@ str_t maxSeq(char* str, node_search_t* nodes,  size_t pid_num) {
                 break;
             }
             ++j;
+            if (j >= pid_num) { break;}
         }
-        if (j >= pid_num) { break;}
     }
  }
 
