@@ -20,7 +20,9 @@ TEST(Test1, txt_1) {
     EXPECT_EQ(res.seq[i], true_result[i]);
   }
 
-  if (str.seq) { free(str.seq); }
+  if (str.seq) {
+    free(str.seq);
+  }
 }
 
 TEST(Test2, txt_2) {
@@ -39,7 +41,9 @@ TEST(Test2, txt_2) {
     EXPECT_EQ(res.seq[i], true_result[i]);
   }
 
-  if (str.seq) { free(str.seq); }
+  if (str.seq) {
+    free(str.seq);
+  }
 }
 
 TEST(Test3, txt_3) {
@@ -51,12 +55,16 @@ TEST(Test3, txt_3) {
 
   str_t res = search(str.seq, str.size);
 
-  char true_result[] = "\"ABCDEFGHIJKLMNOPQRSTUVWXYZasdasdjkasbdkjbashdbshadspakABCDEFGHIJKLMNOPQRSTUVWXY\"";
+  char true_result[] =
+      "\"ABCDEFGHIJKLMNOPQRSTUVWXYZasdasdjkasbdkjbashdbshadspakABCDEFGHIJKLMNOP"
+      "QRSTUVWXY\"";
 
   EXPECT_EQ(res.size, 81);
   for (size_t i = 0; i < res.size; ++i) {
     EXPECT_EQ(res.seq[i], true_result[i]);
   }
 
-  if (str.seq) { free(str.seq); }
+  if (str.seq) {
+    free(str.seq);
+  }
 }
