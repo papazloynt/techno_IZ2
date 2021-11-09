@@ -40,8 +40,8 @@ str_t maxSeq(char* str, node_search_t* nodes,  size_t pid_num) {
                 break;
             }
             ++j;
-            if (j >= pid_num) { break;}
         }
+        if (j >= pid_num) { break;}
     }
  }
 
