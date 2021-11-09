@@ -58,7 +58,7 @@ jobs:
       - name: valring main
         run: |
           cd build
-          valgrind --leak-check=full --error-exitcode=1 ./main -i ../test/1.txt -o 1_out.txt
+          valgrind --leak-check=full --error-exitcode=1 ./main -i ../tests/1.txt -o 1_out.txt
       - name: сlang-format style check
         uses: DoozyX/clang-format-lint-action@v0.12
         with:
