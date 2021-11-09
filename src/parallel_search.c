@@ -134,7 +134,12 @@ str_t search(char* str, const int size) {
     str_t res = {NULL, -1};
     return res;
   }
-  memcpy(pid_str, str, size);
+
+  if (!memcpy(pid_str, str, size)) {
+    printf("Memcpy doesn't work!");
+    str_t res = {NULL, -1};
+    return res;
+  }
 
   return pidSearchDelegate(pid_str, size, pid_num);
 }
