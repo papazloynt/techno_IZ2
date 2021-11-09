@@ -11,9 +11,18 @@ typedef struct str_t {
     int size;
 } str_t;
 
+typedef struct node_search_t {
+    int first_el;
+    int last_el;
+    bool after_last_is_upper;
+    str_t data;
+} node_search_t;
+
 str_t search(char* str, const int size);
 
 bool readString(str_t* str, FILE* in);
+
+node_search_t pidSearch(char* str, const int start_pos, const int end_pos);
 
 bool isUpper(const char ch);
 

@@ -7,21 +7,25 @@
 #include <time.h>
 #include <string.h>
 
+#define AVRG 5
+#define MACRO 1000000000
+#define MIL 1000
+
 int main(int argc, char *argv[]) {
     int opt;
     char* opts = "i:o:h";
-    char* input = NULL;
-    char* output = NULL;
+    char* in = NULL;
+    char* out = NULL;
 
     while ((opt = getopt(argc, argv, opts)) != -1) {
         switch (opt) {
             case 'i':
-                input = malloc((strlen(optarg) + 1) * sizeof(char));
-                strcpy(input, optarg);
+                in = malloc((strlen(optarg) + 1) * sizeof(char));
+                strcpy(in, optarg);
                 break;
             case 'o':
-                output = malloc((strlen(optarg) + 1) * sizeof(char));
-                strcpy(output, optarg);
+                out = malloc((strlen(optarg) + 1) * sizeof(char));
+                strcpy(out, optarg);
                 break;
             case 'h':
                 printf("Use this forms: %s [-h|-i|-o] <args>\n", argv[0]);
@@ -31,76 +35,76 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
     str_t str;
-
-    if (!input) {
+    str.seq = NULL;
+    if (!in) {
         if (!readString(&str, stdin)) {
-            printf("Reading string failed\n");
+            printf("Read string failed\n");
             return 1;
         }
     } else {
-        FILE *file = fopen(input, "r");
+        FILE *f = fopen(in, "r");
 
-        if (!file) {
-            printf("Opening file failed\n");
+        if (!f) {
+            printf("Open file failed\n");
             return 1;
         }
 
-        if (!readString(&str, file)) {
-            printf("Reading string failed\n");
+        if (!readString(&str, f)) {
+            printf("Read string failed\n");
             return 1;
         }
 
-        if (fclose(file)) {
-            printf("Closing file failed\n");
+        if (fclose(f)) {
+            printf("Close file failed\n");
             return 1;
         }
     }
-    size_t calls_count = 5;
 
     struct timespec start, end;
 
     clock_gettime(CLOCK_MONOTONIC, &start);
-    str_t result;
-    for (size_t i = 0; i < calls_count; ++i) {
-        result = search(str.seq, str.size);
+    str_t res;
+    for (size_t i = 0; i < AVRG; ++i) {
+        res = search(str.seq, str.size);
     }
-
     clock_gettime(CLOCK_MONOTONIC, &end);
-    size_t time = (1000000000 * (end.tv_sec - start.tv_sec) +
-                   (end.tv_nsec - start.tv_nsec)) / 1000;
 
-    if (!output) {
-        printf("Result :");
+    size_t time = ((MACRO * (end.tv_sec - start.tv_sec) +
+                   (end.tv_nsec - start.tv_nsec)) / MIL) / AVRG;
 
-        for (int i = 0; i < result.size; ++i) {
-            printf("%c", result.seq[i]);
+    if (!out) {
+        printf("Sequence :");
+
+        for (int i = 0; i < res.size; ++i) {
+            printf("%c", res.seq[i]);
         }
-        printf("\nTime : %zu mks\n\n", time / calls_count);
+
+        printf("\nTime : %zu mks\n", time);
     } else {
-        FILE *file = fopen(output, "w");
+        FILE *f = fopen(out, "w");
 
-        if (!file) {
-            printf("Opening file failed\n");
+        if (!f) {
+            printf("Open file failed\n");
             return 1;
         }
 
-        fprintf(file, "Result %s:\n", result.seq);
-        fprintf(file, "Time : %zu mks\n\n", time / calls_count);
+        fprintf(f, "Sequence :");
 
-        if (fclose(file)) {
-            printf("Closing file failed\n");
+        for (int i = 0; i < res.size; ++i) {
+            fprintf(f, "%c", res.seq[i]);
+        }
+
+        fprintf(f, "\nTime : %zu mks\n", time);
+
+        if (fclose(f)) {
+            printf("Close file failed\n");
             return 1;
         }
     }
 
-    free(str.seq);
-    if (input) {
-        free(input);
-    }
-    if (output) {
-        free(output);
-    }
+    if (str.seq) { free(str.seq); }
+    if (in) { free(in); }
+    if (out) { free(out); }
     return 0;
 }

@@ -9,16 +9,9 @@
 #include <unistd.h>
 
 #define PROC_STEP 20000
+#define NEW_STEP 10
 
-typedef struct node_search {
-    int first_el;
-    int last_el;
-    bool last_is_good;
-    char* seq;
-    int size;
-} node_search;
-
-str_t maxSeq(char* str, node_search* nodes,  size_t pid_num) {
+str_t maxSeq(char* str, node_search_t* nodes,  size_t pid_num) {
  str_t max;
  max.size = 0;
 
@@ -26,14 +19,14 @@ str_t maxSeq(char* str, node_search* nodes,  size_t pid_num) {
  size_t j = 0;
  while (i < pid_num) {
     if (nodes[i].last_el != -1) {
-        if (nodes[i].size > max.size) {
-            max.seq = nodes[i].seq;
-            max.size = nodes[i].size;
+        if (nodes[i].data.size > max.size) {
+            max.seq = nodes[i].data.seq;
+            max.size = nodes[i].data.size;
         }
         j = i + 1;
         while (j < pid_num) {
             if (nodes[j].first_el != -1) {
-                if (nodes[i].last_is_good) {
+                if (nodes[i].after_last_is_upper) {
                     if ((nodes[j].first_el - nodes[i].last_el + 1) > max.size) {
                         max.seq = str + nodes[i].last_el;
                         max.size = nodes[j].first_el - nodes[i].last_el + 1;
@@ -48,63 +41,17 @@ str_t maxSeq(char* str, node_search* nodes,  size_t pid_num) {
     }
  }
 
-    if (nodes[pid_num - 1].size > max.size) {
-        max.seq = nodes[pid_num - 1].seq;
-        max.size = nodes[pid_num - 1].size;
+    if (nodes[pid_num - 1].data.size > max.size) {
+        max.seq = nodes[pid_num - 1].data.seq;
+        max.size = nodes[pid_num - 1].data.size;
     }
     return max;
 }
 
-node_search pidSearch(char* str, const int start_pos, const int end_pos) {
-    int left = -1;
-    int max_left = -1;
-    int max_right = -1;
-    node_search res;
-
-    res.first_el = res.last_el = -1;
-    res.last_is_good = false;
-
-    // find first symbol - "
-    int i = start_pos;
-    while (i < end_pos) {
-        if (str[i] == '\"') {
-            left = i;
-            res.first_el = res.last_el = i;
-            break;
-        }
-        ++i;
-    }
-
-    // find max subsequence
-    for (; i < end_pos; ++i) {
-        if (str[i] == '\"') {
-            if ((i - left > max_right - max_left) && isUpper(str[left + 1])) {
-                max_right = i;
-                max_left = left;
-            }
-            res.last_el = left = i;
-        }
-    }
-
-    if ((res.last_el != -1) && (isUpper(str[res.last_el + 1]))) {
-        res.last_is_good = true;
-    }
-
-    if (max_left != max_right) {
-        res.seq = str + max_left;
-        res.size = max_right - max_left + 1;
-        return res;
-    }
-
-    res.seq = NULL;
-    res.size = - 1;
-    return res;
-}
-
-str_t pidsSearchDelegate(char* pid_str,
+str_t pidSearchDelegate(char* pid_str,
                            const int size, size_t pid_num) {
-    node_search* node_num = mmap(NULL,
-                                 pid_num * sizeof (node_search),
+    node_search_t* node_num = mmap(NULL,
+                                 pid_num * sizeof (node_search_t),
                                  PROT_READ | PROT_WRITE,
                                  MAP_SHARED | MAP_ANONYMOUS,
                                  -1,
@@ -141,6 +88,22 @@ str_t pidsSearchDelegate(char* pid_str,
     return result;
 }
 
+int getStep(const int size) {
+    if (size <= PROC_STEP) {
+        return size;
+    }
+    return size / NEW_STEP;
+}
+
+size_t getNumPid(const int size, const int step) {
+    struct rlimit max_pids;
+    getrlimit(RLIMIT_NPROC, &max_pids);
+    size_t pid_num = (size_t)((size + step - 1)/ (double)step);
+
+    if (pid_num > max_pids.rlim_max) { pid_num = max_pids.rlim_max; }
+
+    return pid_num;
+}
 
 str_t search(char* str, const int size) {
     if (!str) {
@@ -148,14 +111,13 @@ str_t search(char* str, const int size) {
         str_t res = {NULL, -1};
         return res;
     }
-    struct rlimit max_pids;
-    getrlimit(RLIMIT_NPROC, &max_pids);
-    size_t pid_num = (size_t)((size + PROC_STEP - 1)/ (double)PROC_STEP);
-    if (pid_num > max_pids.rlim_max) { pid_num = max_pids.rlim_max; }
+
+    int step = getStep(size);
+    size_t pid_num = getNumPid(size, step);
 
     // Use mmap for non-copy str in current pid's children
     char* pid_str = mmap(NULL,
-                         size * sizeof(char),
+                         size,
                          PROT_READ | PROT_WRITE,
                          MAP_SHARED | MAP_ANONYMOUS,
                          -1,
@@ -166,7 +128,7 @@ str_t search(char* str, const int size) {
         str_t res = {NULL, -1};
         return res;
     }
-    memcpy(pid_str, str, size * sizeof(char));
+    memcpy(pid_str, str, size);
 
-    return pidsSearchDelegate(pid_str, size, pid_num);
+    return pidSearchDelegate(pid_str, size, pid_num);
 }
