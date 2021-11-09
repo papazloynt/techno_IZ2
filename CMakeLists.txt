@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(IZ2)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_FLAGS " -g -O0 -Wall -W -Werror -Wpedantic")
+set(CMAKE_C_FLAGS "-g -O0 -Wall -W -fprofile-arcs -ftest-coverage -Werror -Wpedantic")
 
 option(IS_SEQUENTIAL "Use sequential library" ON)
 

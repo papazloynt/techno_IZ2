@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install dependencies
+        run: |
+          sudo apt install
+          sudo apt install lcov cppcheck valgrind
+          git submodule update --init
+      - name: cmake build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make all
+      - name: tests common functions
+        run: |
+          cd build
+          ./common_tests
+      - name: tests sequential functions
+        run: |
+          cd build
+          ./sequential_tests
+      - name: tests parallel functions
+        run: |
+          cd build
+          ./parallel_tests
+      - name: Create coverage
+        run: |
+          cd build
+          ./common_tests
+          ./sequential_tests
+          ./parallel_tests
+          cd ..
+          mkdir coverage_report
+          gcovr -r . --exclude build/ --exclude third_party/ --exclude src/main.c --html --html-details -o coverage_report/coverage.html
+      - name: Code coverage report html
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage_report
+          path: coverage_report
+      - name: cppcheck
+        run: |
+          cppcheck --inconclusive --suppress=missingInclude --enable=all --language=c --error-exitcode=1 src/
+      - name: valgrind tests
+        run: |
+          cd build
+          valgrind --leak-check=full --error-exitcode=1 ./common_tests
+          valgrind --leak-check=full --error-exitcode=1 ./sequential_tests
+          valgrind --leak-check=full --error-exitcode=1 ./parallel_tests
+      - name: valring main
+        run: |
+          cd build
+          valgrind --leak-check=full --error-exitcode=1 ./main -i ../test/1.txt -o 1_out.txt
+      - name: сlang-format style check
+        uses: DoozyX/clang-format-lint-action@v0.12
+        with:
+          clangFormatVersion: 12
+          source: './src ./include ./tests'
+          exclude: './build ./third_party'
+          extensions: 'h,c,cpp'
+          style: google
