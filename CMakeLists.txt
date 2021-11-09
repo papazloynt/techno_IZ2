@@ -3,6 +3,7 @@ project(IZ2)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_FLAGS "-g -O0 -Wall -W -fprofile-arcs -ftest-coverage -Werror -Wpedantic")
+set(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
 
 option(IS_SEQUENTIAL "Use sequential library" ON)
 
